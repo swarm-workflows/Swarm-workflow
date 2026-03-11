@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWARM | Resilient Scientific Metasystem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        /* --- ENHANCED CONTRAST THEME VARIABLES --- */
+        /* --- ENHANCED READABILITY THEME --- */
+        :root[data-theme="dark"] {
+            --swarm-blue: #38bdf8;
+            --swarm-bg: #0b1120;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.5);
+            --nav-bg: rgba(11, 17, 32, 0.85);
+            --border: rgba(56, 189, 248, 0.15);
+            --hero-gradient: linear-gradient(to bottom right, #ffffff 30%, #38bdf8);
+            --particle-color: #38bdf8;
+            --line-color: 56, 189, 248;
+            --hover-dot: #ffffff;
+        }
+
+        :root[data-theme="light"] {
+            --swarm-blue: #0284c7;
+            /* Slightly deeper blue for better contrast on white */
+            --swarm-bg: #ffffff;
+            /* Pure white for maximum "clean" feel */
+            --text-main: #0f172a;
+            /* Slate-900: Professional, not harsh black */
+            --text-muted: #475569;
+            /* Slate-600: Highly readable gray */
+            --card-bg: #f8fafc;
+            /* Very subtle gray cards so they pop against white bg */
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --border: rgba(2, 132, 199, 0.1);
+            --hero-gradient: linear-gradient(to bottom right, #0f172a 20%, #0284c7);
+            --particle-color: #46a1ce;
+            --line-color: 2, 132, 199;
+            --hover-dot: #0284c7;
+        }
+
+        /* Ensure content cards don't look too heavy in light mode */
+        [data-theme="light"] .content-card {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            /* Soft slate border */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            /* Minimal shadow */
+        }
+
+        /* Fix for the Hero title contrast in light mode */
+        [data-theme="light"] .hero-title {
+            background: linear-gradient(to right, #0f172a, #0284c7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Light mode specific partner logo visibility */
+        [data-theme="light"] .bottom-logo {
+            filter: grayscale(1) opacity(0.6);
+        }
+
+        [data-theme="light"] .bottom-logo:hover {
+            filter: grayscale(0) opacity(1);
+        }
+
+        /* GLOBAL READABILITY OVERRIDE */
+        /* This ensures that any "gray" text in your Mission Overview 
+       and other sections respects your new high-contrast variables */
+        .text-slate-400,
+        .text-slate-500,
+        p {
+            color: var(--text-muted) !important;
+            line-height: 1.6;
+            /* Improves readability by adding breathing room between lines */
+            font-weight: 400;
+            /* Ensures the font isn't too thin to read */
+        }
+
+        /* Keep headings as the main text color */
+        h1,
+        h2,
+        h3,
+        h4,
+        .text-white {
+            color: var(--text-main) !important;
+        }
+
+        /* Apply dynamic button styles */
+        .btn-secondary {
+            background-color: var(--btn-secondary-bg);
+            color: var(--btn-secondary-text);
+            border: 1px solid var(--btn-secondary-border);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--swarm-bg);
+            color: var(--text-main);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            margin: 0;
+        }
+
+
+        /* Force Tailwind classes to respect theme variables */
+        .text-white,
+        h1,
+        h2,
+        h3 {
+            color: var(--text-main) !important;
+        }
+
+        .text-slate-400 {
+            color: var(--text-muted) !important;
+        }
+
+        /* Fixed Canvas Background */
+        canvas#swarm-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Navigation & Glass effects */
+        nav,
+        header,
+        section,
+        footer {
+            position: relative;
+            z-index: 10;
+        }
+
+        .glass-nav {
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            transition: 0.3s;
+        }
+
+        .hero-title {
+            background: var(--hero-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle-btn {
+            padding: 10px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            color: var(--swarm-blue);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Fix for GitHub Repo appearance in light mode */
+        [data-theme="light"] .content-card {
+            background: #ffffff !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="light"] .content-card h3 {
+            color: #0f172a !important;
+        }
+
+        /* Hero Button Dynamic Styling */
+        .hero-repo-btn {
+            background-color: var(--hero-btn-bg);
+            color: var(--hero-btn-text);
+        }
+
+        .section-header {
+            margin-bottom: 4rem;
+            /* Equals mb-16 */
+        }
+
+        section {
+            padding-top: 10rem !important;
+            /* Equals py-40 */
+            padding-bottom: 10rem !important;
+        }
+
+        /* Partners Grid Styling */
+        .partners-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            padding-top: 3rem;
+        }
+
+        .bottom-logo {
+            max-height: 45px;
+            width: auto;
+            filter: grayscale(1);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .bottom-logo:hover {
+            filter: grayscale(0);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        /* Specific fix for Dark Mode: Make dark logos visible */
+        [data-theme="dark"] .bottom-logo {
+            filter: grayscale(1) invert(0.9);
+        }
+
+        [data-theme="dark"] .bottom-logo:hover {
+            filter: grayscale(0) invert(0);
+        }
+
+        /* Container movement: large sweeping paths */
+        .bee-mover {
+            animation: swarm-float 25s infinite ease-in-out;
+            will-change: transform;
+        }
+
+        /* Logo specific movement: high-frequency buzzing/tilting */
+        .bee-logo {
+            animation: bee-tilt 3s infinite ease-in-out alternate;
+            filter: blur(0.5px);
+            /* Slight soft edge for sophistication */
+        }
+
+        @keyframes swarm-float {
+            0% {
+                transform: translate(-40vw, -30vh) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(30vw, -10vh) rotate(15deg);
+            }
+
+            50% {
+                transform: translate(10vw, 20vh) rotate(-10deg);
+            }
+
+            75% {
+                transform: translate(-25vw, 15vh) rotate(5deg);
+            }
+
+            100% {
+                transform: translate(-40vw, -30vh) rotate(0deg);
+            }
+        }
+
+        @keyframes bee-tilt {
+            from {
+                transform: rotateY(-10deg) rotateX(10deg) scale(1);
+            }
+
+            to {
+                transform: rotateY(10deg) rotateX(-10deg) scale(1.05);
+            }
+        }
+
+        .bee-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            animation: bee-flight-path 25s infinite linear;
+            will-change: transform;
+        }
+
+        .bee-instance {
+            width: 60px;
+            height: 60px;
+            opacity: 0.12;
+            /* Subtle enough not to block text */
+            filter: drop-shadow(0 0 10px var(--swarm-blue));
+            animation: bee-vibration 0.15s infinite alternate;
+        }
+
+        @keyframes bee-flight-path {
+            0% {
+                transform: translate(-45vw, -20vh) rotate(5deg);
+            }
+
+            25% {
+                transform: translate(35vw, -35vh) rotate(15deg);
+            }
+
+            50% {
+                transform: translate(40vw, 25vh) rotate(-10deg);
+            }
+
+            75% {
+                transform: translate(-30vw, 30vh) rotate(-20deg);
+            }
+
+            100% {
+                transform: translate(-45vw, -20vh) rotate(5deg);
+            }
+        }
+
+        @keyframes bee-vibration {
+            from {
+                transform: scale(1) skewX(2deg);
+            }
+
+            to {
+                transform: scale(1.05) skewX(-2deg);
+            }
+        }
+
+        /* Container for the motion path */
+        .bee-path {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 100vh;
+            transform: translate(-50%, -50%);
+            animation: bee-flight 22s infinite ease-in-out;
+            will-change: transform;
+        }
+
+        /* The actual logo appearance */
+        .bee-logo {
+            position: absolute;
+            filter: blur(1px);
+            /* Slight blur for a "background" feel */
+            animation: bee-vibrate 0.2s infinite alternate ease-in-out;
+        }
+
+        /* The wandering flight path (Bee movement) */
+        @keyframes bee-flight {
+            0% {
+                transform: translate(-40vw, -20vh) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(30vw, -35vh) rotate(15deg);
+            }
+
+            50% {
+                transform: translate(25vw, 20vh) rotate(-10deg);
+            }
+
+            75% {
+                transform: translate(-20vw, 15vh) rotate(10deg);
+            }
+
+            100% {
+                transform: translate(-40vw, -20vh) rotate(0deg);
+            }
+        }
+
+        /* Subtle vibration to simulate wings */
+        @keyframes bee-vibrate {
+            from {
+                transform: scale(1.0) skewX(2deg);
+            }
+
+            to {
+                transform: scale(1.02) skewX(-2deg);
+            }
+        }
+
+        .swarm-dot-text {
+            font-family: 'Inter', sans-serif;
+            /* Use a bold, geometric font */
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            position: relative;
+
+            /* The Blue Gradient from your logo */
+            background: linear-gradient(to right, #38bdf8 0%, #0ea5e9 40%, #0369a1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+
+            /* The Dot Matrix Mask */
+            mask-image: radial-gradient(circle, black 45%, transparent 55%);
+            mask-size: 4px 4px;
+            /* Adjust this to make dots smaller/larger */
+            -webkit-mask-image: radial-gradient(circle, black 45%, transparent 55%);
+            -webkit-mask-size: 4px 4px;
+
+            /* Ensure it looks sharp */
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        /* Hover Effect: "Activate" the nodes */
+        .group:hover .swarm-dot-text {
+            background: linear-gradient(to right, #7dd3fc, #38bdf8, #0ea5e9);
+            -webkit-background-clip: text;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4));
+            mask-size: 4.5px 4.5px;
+            /* Slight pulse effect */
+            -webkit-mask-size: 4.5px 4.5px;
+        }
+
+        .swarm-dot-text {
+            font-family: 'Inter', 'Syncopate', sans-serif;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 0.8;
+
+            /* High-contrast gradient to match logo depths */
+            background: linear-gradient(to right, #38bdf8 0%, #0ea5e9 30%, #0284c7 70%, #0369a1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+
+            /* Tightened Dot Matrix for large scale */
+            mask-image: radial-gradient(circle, black 42%, transparent 58%);
+            mask-size: 6px 6px;
+            -webkit-mask-image: radial-gradient(circle, black 42%, transparent 58%);
+            -webkit-mask-size: 6px 6px;
+
+            display: inline-block;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .group:hover .swarm-dot-text {
+            /* Sophisticated "Active System" Glow */
+            filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.4));
+            mask-size: 7px 7px;
+            -webkit-mask-size: 7px 7px;
+            letter-spacing: -0.01em;
+            /* Slight expansion on hover */
+        }
+
+        .group:hover .swarm-dot-text {
+            /* Glow effect on hover */
+            filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.3));
+            transform: translateY(-2px);
+            mask-size: 6px 6px;
+            /* Subtle pulse animation */
+            -webkit-mask-size: 6px 6px;
+        }
+
+        .typewriter-cursor {
+            color: var(--swarm-blue);
+            font-weight: bold;
+            animation: blink 0.8s infinite;
+            margin-left: 4px;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Button Formatting Fix */
+        .btn-primary-swarm {
+            background-color: #ffffff !important;
+            color: #0b1120 !important;
+        }
+
+        .btn-primary-swarm:hover {
+            background-color: var(--swarm-blue) !important;
+            color: #ffffff !important;
+        }
+        /* Container for the typewriter to prevent layout shifts */
+/* Update your typewriter background styling */
+.typewriter-box {
+    /* Uses a variable or conditional transparency */
+    background: var(--typewriter-bg); 
+    border-left: 3px solid var(--swarm-blue);
+    padding: 1.25rem 2rem;
+    border-radius: 0 12px 12px 0;
+    backdrop-filter: blur(8px);
+    transition: all 0.5s ease;
+}
+
+/* Light Mode specific colors */
+:root[data-theme="light"] {
+    --typewriter-bg: rgba(2, 132, 199, 0.05); /* Very soft sky blue tint */
+}
+
+/* Dark Mode specific colors */
+:root[data-theme="dark"] {
+    --typewriter-bg: rgba(15, 23, 42, 0.3); /* Deep slate/navy tint */
+}
+
+/* The actual text styling */
+#typewriter-text {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+
+
+    </style>
+</head>
+
+<body class="overflow-x-hidden">
+
+    <canvas id="swarm-canvas"></canvas>
+
+    <nav class="fixed top-0 w-full z-50 glass-nav px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div class="w-8 h-8  rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <img src="images/logo.png" alt="swarm Logo">
+            </div>
+            <div class="flex flex-col leading-none">
+                <div class="swarm-dot-text">SWARM</div>
+                <span class="text-[7px] uppercase tracking-[0.45em] text-slate-500 font-bold ml-0.5 mt-1">
+                    Distributed Resilience System
+                </span>
+            </div>
+        </div>
+        <div class="flex items-center gap-8">
+            <div class="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest opacity-70">
+                <a href="#home" class="hover:text-blue-400 transition">Home</a>
+                <a href="#about" class="hover:text-blue-400 transition">About</a>
+                <a href="#code" class="hover:text-blue-400 transition">Code</a>
+                <a href="#media" class="hover:text-blue-400 transition">Media</a>
+                <a href="#publications" class="hover:text-blue-400 transition">Publications</a>
+                <a href="#team" class="hover:text-blue-400">Team</a>
+            </div>
+            <button onclick="toggleTheme()" class="theme-toggle-btn">
+                <i data-lucide="sun" id="theme-icon" class="w-5 h-5"></i>
+            </button>
+            <a href="https://github.com/swarm-workflows" target="_blank"
+                class="bg-blue-500 hover:bg-blue-400 text-white px-5 py-2 rounded-full text-xs font-bold flex items-center gap-2 transition-all">
+                <i data-lucide="github" class="w-4 h-4"></i> GitHub
+            </a>
+        </div>
+
+
+    </nav>
+
+    <header id="home"
+        class="relative z-10 min-h-screen flex flex-col justify-center items-center px-6 text-center overflow-hidden">
+
+        <div class="absolute inset-0 pointer-events-none z-0">
+            <div class="bee-path">
+                <img src="images/logo.png" alt="SWARM Logo" class="bee-logo w-24 h-24 opacity-[0.07] md:opacity-[0.1]">
+            </div>
+        </div>
+
+        <div class="max-w-5xl pointer-events-none relative z-20">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mono text-[10px] tracking-widest uppercase mb-10">
+                <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
+                DOE Award : DE-SC0024387
+            </div>
+
+            <div class="flex flex-col items-center justify-center gap-6 mb-12 pointer-events-auto group">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="w-32 h-32 md:w-56 md:h-56 flex items-center justify-center relative">
+                        <img src="images/logo.png" alt="swarm Logo"
+                            class="w-full h-full object-contain relative z-10 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-3">
+                        <div
+                            class="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full scale-125 opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center md:items-start leading-[0.8] text-center md:text-left">
+                        <div class="swarm-dot-text text-7xl md:text-9xl tracking-tighter">SWARM</div>
+                        <span
+                            class="text-[10px] md:text-sm uppercase tracking-[0.55em] text-slate-500 font-bold mt-6 opacity-80 group-hover:text-blue-400 transition-colors duration-500">
+                            Distributed Resilience System
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typewriter-box pointer-events-auto">
+    <p class="text-lg md:text-2xl font-light italic min-h-[3em] flex items-center justify-center">
+        <span id="typewriter-text"></span><span class="typewriter-cursor">_</span>
+    </p>
+</div>
+
+            <div class="flex flex-col md:flex-row gap-4 justify-center pointer-events-auto">
+                <a href="#publications"
+                    class="btn-primary-swarm px-8 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-xl hover:-translate-y-1">
+                    View Research <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+                <a href="https://github.com/swarm-workflows" target="_blank"
+                    class="btn-secondary px-8 py-4 rounded-xl font-bold hover:opacity-80 transition-all flex items-center justify-center gap-2 hover:-translate-y-1">
+                    <i data-lucide="github" class="w-5 h-5"></i> Explore Repos
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-10 animate-bounce opacity-20">
+            <i data-lucide="chevron-down" class="w-8 h-8"></i>
+        </div>
+    </header>
+
+    <section id="about" class="relative z-10 py-32 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-header flex items-center gap-6">
+                <div class="p-4 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">
+                    <i data-lucide="fingerprint" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h2
+                        class="text-4xl font-bold text-white mb-1 tracking-tight underline decoration-blue-500 decoration-4 underline-offset-8 uppercase">
+                        Mission Overview
+                    </h2>
+                    <p class="text-slate-400 mono text-xs uppercase tracking-[0.2em]">Resilient Infrastructure Research
+                    </p>
+                </div>
+            </div>
+            <div id="about-container"></div>
+        </div>
+    </section>
+
+    <section id="code" class="relative z-10 py-32 px-6 border-y border-[var(--border)]">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-header flex items-center gap-6 mb-12">
+                <div class="p-4 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">
+                    <i data-lucide="terminal" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h2
+                        class="text-4xl font-bold text-white mb-1 tracking-tight underline decoration-blue-500 decoration-4 underline-offset-8 uppercase">
+                        Software Ecosystem
+                    </h2>
+                    <p class="text-slate-400 mono text-xs uppercase tracking-[0.2em]">Live Metasystem Repository Nodes
+                    </p>
+                </div>
+            </div>
+
+            <div class="content-card p-8 rounded-3xl mb-12 border border-[var(--border)]">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="activity" class="w-4 h-4 text-blue-500"></i>
+                        <span class="text-[10px] mono text-blue-500 uppercase font-bold tracking-widest">Development
+                            Velocity</span>
+                    </div>
+                    <div id="total-commits" class="text-[9px] mono text-slate-500 uppercase">Syncing Pulse...</div>
+                </div>
+
+                <div id="github-grid-canvas" class="flex gap-1 justify-between overflow-x-auto pb-2"></div>
+
+                <div
+                    class="mt-4 flex justify-between items-center text-[9px] mono text-slate-500 uppercase tracking-tighter">
+                    <span>Less Activity</span>
+                    <div class="flex gap-1.5 items-center">
+                        <div class="w-2.5 h-2.5 bg-slate-800/10 rounded-sm"></div>
+                        <div class="w-2.5 h-2.5 bg-blue-500/30 rounded-sm"></div>
+                        <div class="w-2.5 h-2.5 bg-blue-500/60 rounded-sm"></div>
+                        <div class="w-2.5 h-2.5 bg-blue-500 rounded-sm"></div>
+                    </div>
+                    <span>More</span>
+                </div>
+            </div>
+
+            <div id="repo-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12"></div>
+        </div>
+    </section>
+
+    <section id="media" class="relative z-10 py-32 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-header flex items-center gap-6">
+                <div class="p-4 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">
+                    <i data-lucide="megaphone" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h2
+                        class="text-4xl font-bold text-white mb-1 tracking-tight underline decoration-blue-500 decoration-4 underline-offset-8 uppercase">
+                        Talk About Us
+                    </h2>
+                    <p class="text-slate-400 mono text-xs uppercase tracking-[0.2em]">Scientific Media Coverage</p>
+                </div>
+            </div>
+            <div id="media-container"></div>
+        </div>
+    </section>
+
+    <section id="publications" class="relative z-10 py-32 px-6 bg-slate-950/20">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-header flex items-center gap-6">
+                <div class="p-4 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">
+                    <i data-lucide="book-open" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h2
+                        class="text-4xl font-bold text-white mb-1 tracking-tight underline decoration-blue-500 decoration-4 underline-offset-8 uppercase">
+                        Publications
+                    </h2>
+                    <p class="text-slate-400 mono text-xs uppercase tracking-[0.2em]">Research Abstract Archive</p>
+                </div>
+            </div>
+            <div id="publications-container"></div>
+        </div>
+    </section>
+
+    <section id="team" class="relative z-10 py-32 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-header flex items-center gap-6">
+                <div class="p-4 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">
+                    <i data-lucide="users" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h2
+                        class="text-4xl font-bold text-white mb-1 tracking-tight underline decoration-blue-500 decoration-4 underline-offset-8 uppercase">
+                        The SWARM Team</h2>
+                    <p class="text-slate-400 mono text-xs uppercase tracking-[0.2em]">Metasystem Architects & Alumni</p>
+                </div>
+            </div>
+            <div id="team-container"></div>
+        </div>
+    </section>
+
+    <section id="partners" class="relative z-10 py-32 px-6 border-t border-[var(--border)]">
+        <div class="max-w-8xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-2 uppercase tracking-tight">Collaborating Institutions</h2>
+                <p class="text-slate-400 mono text-[10px] uppercase tracking-[0.3em]">Partnering with National Labs and
+                    Research Universities</p>
+            </div>
+
+            <div class="partners-container">
+                <div class="p-2">
+                    <a href="https://isi.edu" target="_blank">
+                        <img src="images/usc-removebg-preview.png" class="bottom-logo" alt="USC ISI">
+                    </a>
+                </div>
+
+                <div class="p-2">
+                    <a href="https://isi.edu" target="_blank">
+                        <img src="images/isi.png" class="bottom-logo" alt="USC ISI">
+                    </a>
+                </div>
+
+                <div class="p-2">
+                    <a href="https://renci.org" target="_blank">
+                        <img src="images/RENCI.png" class="bottom-logo" alt="RENCI">
+                    </a>
+                </div>
+
+                <div class="p-2">
+                    <a href="https://www.anl.gov" target="_blank">
+                        <img src="images/Argonne_National_Lab.svg" class="bottom-logo" alt="Argonne National Lab">
+                    </a>
+                </div>
+
+                <div class="p-2">
+                    <a href="https://lbl.gov" target="_blank">
+                        <img src="images/Lawrence_Berkeley_Lab.png" class="bottom-logo" alt="LBL">
+                    </a>
+                </div>
+
+                <div class="p-2">
+                    <a href="https://ornl.gov" target="_blank">
+                        <img src="images/Oak_Ridge_National_Lab.svg" class="bottom-logo" alt="ORNL">
+                    </a>
+                </div>
+
+                <div class="p-2">
+                    <a href="https://www.energy.gov" target="_blank">
+                        <img src="images/energy.png" class="bottom-logo" alt="DOE">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="relative z-10 py-20 border-t border-white/5 text-center">
+        <p class="text-[10px] mono text-slate-600 uppercase tracking-[0.5em]">USC · ORNL · RENCI · ANL · LBL</p>
+    </footer>
+
+   <script>
+    // 1. GLOBAL INITIALIZATION & CONFIG
+    lucide.createIcons();
+
+    const canvas = document.getElementById('swarm-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const mouse = { x: null, y: null, radius: 150 };
+
+    window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+    
+    function resize() {
+        if (!canvas) return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    // 2. COMPONENT LOADER (Fetches HTML fragments)
+    async function loadContent(url, targetId) {
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const html = await res.text();
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.innerHTML = html;
+                lucide.createIcons();
+                return true;
+            }
+        } catch (err) {
+            console.error(`Load Error (${url}):`, err);
+        }
+        return false;
+    }
+
+    // 3. PARTICLE SYSTEM
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 1;
+            this.baseX = this.x;
+            this.baseY = this.y;
+            this.density = (Math.random() * 30) + 1;
+            this.updateThemeColors();
+        }
+
+        updateThemeColors() {
+            const style = getComputedStyle(document.documentElement);
+            this.baseColor = style.getPropertyValue('--particle-color').trim() || '#38bdf8';
+            this.hoverColor = style.getPropertyValue('--hover-dot').trim() || '#ffffff';
+            this.color = this.baseColor;
+        }
+
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        update() {
+            let dx = mouse.x - this.x;
+            let dy = mouse.y - this.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < mouse.radius) {
+                let force = (mouse.radius - distance) / mouse.radius;
+                this.x += (dx / distance) * force * this.density;
+                this.y += (dy / distance) * force * this.density;
+                this.color = this.hoverColor;
+            } else {
+                this.x -= (this.x - this.baseX) / 20;
+                this.y -= (this.y - this.baseY) / 20;
+                this.color = this.baseColor;
+            }
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const style = getComputedStyle(document.documentElement);
+        const rgb = style.getPropertyValue('--line-color').trim() || '56, 189, 248';
+
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].draw();
+            particles[i].update();
+            for (let j = i + 1; j < particles.length; j++) {
+                let dx = particles[i].x - particles[j].x;
+                let dy = particles[i].y - particles[j].y;
+                let d = Math.sqrt(dx * dx + dy * dy);
+                if (d < 100) {
+                    ctx.strokeStyle = `rgba(${rgb}, ${0.1 - d / 1000})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+
+    // 4. THEME TOGGLE
+    function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const icon = document.getElementById('theme-icon');
+        if (icon) icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        lucide.createIcons();
+        particles.forEach(p => p.updateThemeColors());
+    }
+
+    // 5. GITHUB INTEGRATION
+    async function fetchGitHubRepos() {
+        const grid = document.getElementById('repo-grid');
+        if (!grid) return;
+        try {
+            const res = await fetch('https://api.github.com/users/swarm-workflows/repos?sort=updated');
+            const data = await res.json();
+            if (!Array.isArray(data)) return;
+            grid.innerHTML = data.slice(0, 6).map(repo => `
+                <a href="${repo.html_url}" target="_blank" class="content-card p-8 rounded-3xl group block">
+                    <div class="flex justify-between items-start mb-6 text-blue-500">
+                        <i data-lucide="github" class="w-6 h-6"></i>
+                        <span class="text-[10px] mono text-slate-500 uppercase">Active Node</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 uppercase group-hover:text-blue-500 transition">${repo.name}</h3>
+                    <p class="text-sm text-slate-500 italic mb-6 leading-relaxed line-clamp-2">${repo.description || 'System component.'}</p>
+                    <div class="pt-4 border-t border-black/5 flex justify-between items-center text-blue-500">
+                         <span class="text-[10px] mono font-bold uppercase tracking-widest">${repo.language || 'Code'}</span>
+                         <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </div>
+                </a>`).join('');
+            lucide.createIcons();
+        } catch (err) { console.error("GitHub Fetch Error"); }
+    }
+
+    async function generateGithubGrid() {
+        const grid = document.getElementById('github-grid-canvas');
+        const commitText = document.getElementById('total-commits');
+        if (!grid) return;
+        try {
+            const res = await fetch('https://api.github.com/orgs/swarm-workflows/events');
+            const events = await res.json();
+            if (!Array.isArray(events)) {
+                grid.innerHTML = "<p class='mono text-[10px] opacity-40 p-4'>Rate Limit Detected</p>";
+                return;
+            }
+            const pushEvents = events.filter(e => e.type === "PushEvent");
+            if (commitText) commitText.innerText = `${pushEvents.length}+ Recent Pulses Detected`;
+
+            grid.innerHTML = '';
+            for (let i = 0; i < 52; i++) {
+                const week = document.createElement('div');
+                week.className = 'flex flex-col gap-1';
+                for (let j = 0; j < 7; j++) {
+                    const day = document.createElement('div');
+                    const intensity = Math.random();
+                    let color = intensity > 0.9 ? 'bg-blue-400' : (intensity > 0.6 ? 'bg-blue-500/30' : 'bg-slate-800/10');
+                    day.className = `w-2.5 h-2.5 rounded-sm transition-all hover:scale-150 ${color}`;
+                    week.appendChild(day);
+                }
+                grid.appendChild(week);
+            }
+        } catch (err) { console.error("Grid Error"); }
+    }
+
+    // 6. PUBLICATION & TEAM PARSERS
+    async function loadAndParseBibtex() {
+        const container = document.getElementById('bib-render-engine');
+        if (!container) return;
+        try {
+            const response = await fetch('src/publications.bib');
+            const rawData = await response.text();
+            const entries = rawData.split('@').filter(e => e.trim().length > 10);
+            container.innerHTML = '';
+            entries.forEach(entry => {
+                const title = entry.match(/title\s*=\s*{(.*?)}/s)?.[1].replace(/[\n\r\s]+/g, ' ').trim() || "Untitled";
+                const author = entry.match(/author\s*=\s*{(.*?)}/s)?.[1] || "SWARM Team";
+                const year = entry.match(/year\s*=\s*{?(\d{4})}?/)?.[1] || "2025";
+                const venue = entry.match(/(?:journal|booktitle)\s*=\s*{(.*?)}/s)?.[1] || "Publication";
+                const url = entry.match(/url\s*=\s*{(.*?)}/)?.[1] || null;
+                const firstAuthor = author.split(' and ')[0].split(',')[0].trim();
+
+                const card = document.createElement(url ? 'a' : 'div');
+                if (url) { card.href = url; card.target = "_blank"; }
+                card.className = 'content-card p-8 rounded-3xl border border-[var(--border)] flex flex-col justify-between transition-all group';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-blue-500 mono text-[10px] font-bold uppercase tracking-widest">${year}</span>
+                            <i data-lucide="${url ? 'external-link' : 'file-text'}" class="w-4 h-4 text-blue-500 opacity-50"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-[var(--text-main)] group-hover:text-blue-400 transition-colors">${title}</h3>
+                        <p class="text-sm mb-6 text-[var(--text-muted)]">${firstAuthor} et al.</p>
+                    </div>
+                    <div class="pt-4 border-t border-[var(--border)] text-[10px] mono uppercase italic text-blue-400">${venue}</div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        } catch (err) { console.error("BibTeX Error:", err); }
+    }
+
+    async function loadAndRenderTeam() {
+        const activeGrid = document.getElementById('active-team-grid');
+        const alumniGrid = document.getElementById('alumni-team-grid');
+        if (!activeGrid || !alumniGrid) return;
+        try {
+            const response = await fetch('src/team.json');
+            const data = await response.json();
+            const renderMember = (m) => `
+                <div class="content-card p-4 rounded-[2rem] group transition-all">
+                    <div class="aspect-square rounded-2xl overflow-hidden mb-4 bg-slate-900 border border-white/5">
+                        <img src="${m.image}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=0D1117&color=38bdf8'">
+                    </div>
+                    <h5 class="text-white font-bold group-hover:text-blue-400 transition text-sm">${m.name}</h5>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-[9px] mono text-slate-500 uppercase">${m.role}</span>
+                        <a href="mailto:${m.email}" class="text-slate-400 hover:text-white"><i data-lucide="mail" class="w-4 h-4"></i></a>
+                    </div>
+                </div>`;
+            activeGrid.innerHTML = data.team.map(renderMember).join('');
+            alumniGrid.innerHTML = data.alumni.map(renderMember).join('');
+            lucide.createIcons();
+        } catch (err) { console.error("Team JSON Error:", err); }
+    }
+
+    // 7. TYPEWRITER
+    const typewriterTarget = document.getElementById('typewriter-text');
+    const phrases = ["Scientific Workflow Applications on Resilient Metasystem", "Reimagining workflow systems", "Architecting autonomous recovery", "Building the nervous system for science"];
+    let pIdx = 0, cIdx = 0, isDeleting = false;
+
+    function runTypewriter() {
+        if (!typewriterTarget) return;
+        const current = phrases[pIdx];
+        typewriterTarget.textContent = isDeleting ? current.substring(0, cIdx--) : current.substring(0, cIdx++);
+        const cursor = document.querySelector('.typewriter-cursor');
+        if (cursor) cursor.style.color = isDeleting ? "#ef4444" : "var(--swarm-blue)";
+        let delay = isDeleting ? 40 : 80;
+        if (!isDeleting && cIdx > current.length) { isDeleting = true; delay = 2000; }
+        else if (isDeleting && cIdx < 0) { isDeleting = false; pIdx = (pIdx + 1) % phrases.length; delay = 500; }
+        setTimeout(runTypewriter, delay);
+    }
+
+    // 8. FINAL BOOT SEQUENCE
+    window.onload = async () => {
+        resize();
+        for (let i = 0; i < 120; i++) particles.push(new Particle());
+        animate();
+        runTypewriter();
+
+        // Load HTML Components
+        await loadContent('src/about.html', 'about-container');
+        await loadContent('src/media.html', 'media-container');
+
+        // Publications: Load HTML structure, then render the BibTeX data
+        const pubStatus = await loadContent('src/publications.html', 'publications-container');
+        if (pubStatus) loadAndParseBibtex();
+
+        // Team: Load HTML structure, then render the JSON data
+        const teamStatus = await loadContent('src/team.html', 'team-container');
+        if (teamStatus) loadAndRenderTeam();
+
+        // API Calls
+        generateGithubGrid();
+        fetchGitHubRepos();
+    };
+
+    window.addEventListener('resize', () => {
+        resize();
+        particles = [];
+        for (let i = 0; i < 120; i++) particles.push(new Particle());
+    });
+</script>
+</body>
+
+</html>
