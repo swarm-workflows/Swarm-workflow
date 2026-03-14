@@ -514,6 +514,12 @@
     --typewriter-bg: rgba(15, 23, 42, 0.3); /* Deep slate/navy tint */
 }
 
+/* DOE badge smooth scale */
+.doe-badge-sticky > div {
+    transition: transform 0.3s ease;
+    transform-origin: bottom center;
+}
+
 /* The actual text styling */
 #typewriter-text {
     font-family: 'JetBrains Mono', monospace;
@@ -574,12 +580,6 @@
         </div>
 
         <div class="max-w-5xl pointer-events-none relative z-20">
-            <div
-                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mono text-[10px] tracking-widest uppercase mb-10">
-                <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
-                DOE Award : DE-SC0024387
-            </div>
-
             <div class="flex flex-col items-center justify-center gap-6 mb-12 pointer-events-auto group">
                 <div class="flex flex-col md:flex-row items-center gap-8">
                     <div class="w-32 h-32 md:w-56 md:h-56 flex items-center justify-center relative">
@@ -618,6 +618,13 @@
             </div>
         </div>
 
+        <div class="absolute bottom-24 left-1/2 -translate-x-1/2">
+            <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mono text-sm tracking-widest uppercase">
+                <img src="images/doe.png" alt="DOE" class="w-7 h-7 object-contain">
+                DOE Award : DE-SC0024387
+            </div>
+        </div>
+
         <div class="absolute bottom-10 animate-bounce opacity-20">
             <i data-lucide="chevron-down" class="w-8 h-8"></i>
         </div>
@@ -639,6 +646,12 @@
                 </div>
             </div>
             <div id="about-container"></div>
+            <div class="doe-badge-sticky sticky bottom-6 z-50 flex justify-center mt-16 pointer-events-none">
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mono text-sm tracking-widest uppercase backdrop-blur-md">
+                    <img src="images/doe.png" alt="DOE" class="w-7 h-7 object-contain">
+                    DOE Award : DE-SC0024387
+                </div>
+            </div>
         </div>
     </section>
 
@@ -684,6 +697,12 @@
             </div>
 
             <div id="repo-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12"></div>
+            <div class="doe-badge-sticky sticky bottom-6 z-50 flex justify-center mt-16 pointer-events-none">
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mono text-sm tracking-widest uppercase backdrop-blur-md">
+                    <img src="images/doe.png" alt="DOE" class="w-7 h-7 object-contain">
+                    DOE Award : DE-SC0024387
+                </div>
+            </div>
         </div>
     </section>
 
@@ -702,6 +721,12 @@
                 </div>
             </div>
             <div id="media-container"></div>
+            <div class="doe-badge-sticky sticky bottom-6 z-50 flex justify-center mt-16 pointer-events-none">
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mono text-sm tracking-widest uppercase backdrop-blur-md">
+                    <img src="images/doe.png" alt="DOE" class="w-7 h-7 object-contain">
+                    DOE Award : DE-SC0024387
+                </div>
+            </div>
         </div>
     </section>
 
@@ -720,6 +745,12 @@
                 </div>
             </div>
             <div id="publications-container"></div>
+            <div class="doe-badge-sticky sticky bottom-6 z-50 flex justify-center mt-16 pointer-events-none">
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mono text-sm tracking-widest uppercase backdrop-blur-md">
+                    <img src="images/doe.png" alt="DOE" class="w-7 h-7 object-contain">
+                    DOE Award : DE-SC0024387
+                </div>
+            </div>
         </div>
     </section>
 
@@ -737,6 +768,12 @@
                 </div>
             </div>
             <div id="team-container"></div>
+            <div class="doe-badge-sticky sticky bottom-6 z-50 flex justify-center mt-16 pointer-events-none">
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mono text-sm tracking-widest uppercase backdrop-blur-md">
+                    <img src="images/doe.png" alt="DOE" class="w-7 h-7 object-contain">
+                    DOE Award : DE-SC0024387
+                </div>
+            </div>
         </div>
     </section>
 
@@ -1074,6 +1111,24 @@
         particles = [];
         for (let i = 0; i < 120; i++) particles.push(new Particle());
     });
+
+    // DOE badge shrink while scrolling, restore when stopped
+    let scrollTimer = null;
+    function shrinkBadges() {
+        document.querySelectorAll('.doe-badge-sticky').forEach(badge => {
+            badge.firstElementChild.style.transform = 'scale(0.75)';
+        });
+    }
+    function restoreBadges() {
+        document.querySelectorAll('.doe-badge-sticky').forEach(badge => {
+            badge.firstElementChild.style.transform = 'scale(1)';
+        });
+    }
+    window.addEventListener('scroll', () => {
+        shrinkBadges();
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(restoreBadges, 300);
+    }, { passive: true });
 </script>
 </body>
 
