@@ -76,6 +76,12 @@
       "email": "d.tiwari@northeastern.edu",
       "image": "images/people/tiwari-d.jpg",
       "status": "Active"
+    },{
+      "name": "Hongwei Jin, Ph.D.",
+      "role": "ANL",
+      "email": "jinh@anl.gov",
+      "image": "images/people/jinh.jpeg",
+      "status": "Active"
     }
   ],
   "alumni": [
@@ -105,13 +111,6 @@
       "role": "USC",
       "email": "pawelzuk@isi.edu",
       "image": "images/people/zuk.png",
-      "status": "Alumni"
-    },
-    {
-      "name": "Hongwei Jin, Ph.D.",
-      "role": "ANL",
-      "email": "jinh@anl.gov",
-      "image": "images/people/jinh.jpeg",
       "status": "Alumni"
     },
     {
